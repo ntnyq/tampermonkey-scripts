@@ -1,0 +1,20 @@
+{
+  "name": "scripts",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "author": "ntnyq <ntnyq13@gmail.com> (https://ntnyq.com)",
+  "main": "index.js",
+  "prettier": "@qxy/prettier-config",
+  "dependencies": {},
+  "devDependencies": {
+    "@qxy/prettier-config": "^0.3.0",
+    "prettier": "^2.4.1"
+  },
+  "prettierIgnore": [
+    "node_modules",
+    "/dist",
+    "/static",
+    "*.min.*"
+  ]
+}
