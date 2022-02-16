@@ -1,6 +1,15 @@
 {
   "editor.formatOnSave": true,
   "cSpell.words": [
-    "Swal"
+    "filenamify",
+    "gmfetch",
+    "gmxhr",
+    "jszip",
+    "pixiv",
+    "pixivcat",
+    "pximg",
+    "Swal",
+    "ugoira",
+    "xfetch"
   ]
 }
