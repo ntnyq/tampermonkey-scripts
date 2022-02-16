@@ -3,13 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
-  "author": "ntnyq <ntnyq13@gmail.com> (https://ntnyq.com)",
-  "main": "index.js",
+  "author": {
+    "name": "ntnyq",
+    "email": "ntnyq13@gmail.com",
+    "url": "https://ntnyq.com"
+  },
   "prettier": "@qxy/prettier-config",
   "dependencies": {},
   "devDependencies": {
     "@qxy/prettier-config": "^0.3.0",
-    "prettier": "^2.4.1"
+    "prettier": "^2.5.1"
   },
   "prettierIgnore": [
     "node_modules",
