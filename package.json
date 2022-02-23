@@ -8,11 +8,15 @@
     "email": "ntnyq13@gmail.com",
     "url": "https://ntnyq.com"
   },
+  "scripts": {
+    "docs": "vitepress dev docs --host --open"
+  },
   "prettier": "@qxy/prettier-config",
   "dependencies": {},
   "devDependencies": {
     "@qxy/prettier-config": "^0.3.0",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "vitepress": "^0.22.2"
   },
   "prettierIgnore": [
     "node_modules",
