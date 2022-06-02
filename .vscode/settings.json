@@ -12,5 +12,8 @@
     "Swal",
     "ugoira",
     "xfetch"
-  ]
+  ],
+  "[javascript]": {
+    "editor.formatOnSave": false
+  }
 }
