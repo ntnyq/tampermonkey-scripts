@@ -10,10 +10,10 @@
 // @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
 // ==/UserScript==
 
-(async () => {
+;(async () => {
   'use strict'
 
-  const { createApp } = PetiteVue // eslint-disable-line no-undef
+  const { createApp } = window.PetiteVue
 
   const root = document.createElement(`div`)
   root.classList.add(`ntnyq-wrap`)
@@ -37,26 +37,26 @@
     </div>
   `
 
-  document.body.appendChild(root)
+  document.body.append(root)
 
   createApp({
     isPopupVisible: false,
 
-    showPopup () {
+    showPopup() {
       this.isPopupVisible = true
       document.body.classList.add(`ntnyq-lock`)
     },
 
-    hidePopup () {
+    hidePopup() {
       this.isPopupVisible = false
       document.body.classList.remove(`ntnyq-lock`)
     },
 
-    async greet () {
+    async greet() {
       console.log(`Hello world`)
     },
 
-    showAlert () {
+    showAlert() {
       // eslint-disable-next-line no-undef
       Swal.fire({
         icon: `success`,
@@ -159,5 +159,5 @@
   `
   const style = document.createElement(`style`)
   style.textContent = css
-  document.head.appendChild(style)
+  document.head.append(style)
 })()

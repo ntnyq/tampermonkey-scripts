@@ -17,7 +17,7 @@
 // @copyright    https://github.com/maple3142/browser-extensions
 // ==/UserScript==
 
-(() => {
+;(() => {
   'use strict'
 
   const win = window
@@ -41,8 +41,7 @@
   } = win
   const gxf = xf.extend({ fetch: gmfetch })
   const $ = s => doc.querySelector(s)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const $$ = s => [...doc.querySelectorAll(s)]
+  // const $$ = s => [...doc.querySelectorAll(s)]
   const elementMerge = (a, b) => {
     Object.keys(b).forEach(k => {
       if (typeof b[k] === `object`) elementMerge(a[k], b[k])
@@ -58,32 +57,33 @@
 
   const download = (url, name) => {
     const a = $el(`a`, { href: url, download: name || true })
-    body.appendChild(a)
+    body.append(a)
     a.click()
-    body.removeChild(a)
+    a.remove()
   }
   const downloadBlob = (blob, name) => {
     const url = URL.createObjectURL(blob)
     download(url, name)
     URL.revokeObjectURL(url)
   }
-  const blobToCanvas = blob => new Promise((resolve, reject) => {
-    const src = URL.createObjectURL(blob)
-    const img = $el(`img`, { src })
-    const cvs = $el(`canvas`)
-    const ctx = cvs.getContext(`2d`)
-    img.onload = () => {
-      URL.revokeObjectURL(src)
-      cvs.width = img.naturalWidth
-      cvs.height = img.naturalHeight
-      ctx.drawImage(img, 0, 0)
-      resolve(cvs)
-    }
-    img.onerror = err => {
-      URL.revokeObjectURL(src)
-      reject(err)
-    }
-  })
+  const blobToCanvas = blob =>
+    new Promise((resolve, reject) => {
+      const src = URL.createObjectURL(blob)
+      const img = $el(`img`, { src })
+      const cvs = $el(`canvas`)
+      const ctx = cvs.getContext(`2d`)
+      img.addEventListener('load', () => {
+        URL.revokeObjectURL(src)
+        cvs.width = img.naturalWidth
+        cvs.height = img.naturalHeight
+        ctx.drawImage(img, 0, 0)
+        resolve(cvs)
+      })
+      img.addEventListener('error', err => {
+        URL.revokeObjectURL(src)
+        reject(err)
+      })
+    })
 
   const getJSONBody = url => xf.get(url).json(r => r.body)
   const getIllustData = id => getJSONBody(`/ajax/illust/${id}`)
@@ -93,11 +93,10 @@
   // eslint-disable-next-line camelcase
   const getImageFromPximg = (url, pixivcat_multiple_syntax) => {
     if (USE_PIXIVCAT) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const [_, id, idx] = /\/(\d+)_p(\d+)/.exec(url)
+      const [, id, idx] = /\/(\d+)_p(\d+)/.exec(url)
       // eslint-disable-next-line camelcase
       const newUrl = pixivcat_multiple_syntax
-        ? `https://pixiv.cat/${id}-${parseInt(idx) + 1}.png`
+        ? `https://pixiv.cat/${id}-${Number.parseInt(idx) + 1}.png`
         : `https://pixiv.cat/${id}.png`
       return xf.get(newUrl).blob()
     }
@@ -113,65 +112,67 @@
 
     switch (illustType) {
       case 0:
-      case 1: {
-        // normal
-        const url = illustData.urls.original
-        const ext = url.split(`/`).pop().split(`.`).pop()
+      case 1:
+        {
+          // normal
+          const url = illustData.urls.original
+          const ext = url.split(`/`).pop().split(`.`).pop()
 
-        if (illustData.pageCount === 1) {
-          results = [
-            [`${single(illustData)}.${ext}`, await getImageFromPximg(url)],
-          ]
-        } else {
-          const len = illustData.pageCount
-          const arr = []
-          for (let i = 0; i < len; i++) {
-            arr.push(
-              Promise.all([
+          if (illustData.pageCount === 1) {
+            results = [[`${single(illustData)}.${ext}`, await getImageFromPximg(url)]]
+          } else {
+            const len = illustData.pageCount
+            const arr = []
+            for (let i = 0; i < len; i++) {
+              arr.push(
+                Promise.all([
                   `${multiple(illustData, i)}.${ext}`,
                   getImageFromPximg(url.replace(`p0`, `p${i}`), true),
-              ]),
-            )
+                ]),
+              )
+            }
+            results = await Promise.all(arr)
           }
-          results = await Promise.all(arr)
         }
-      }
         break
 
-      case 2: {
-        // ugoira
-        const fname = single(illustData)
-        const ugoiraMeta = await getUgoiraMeta(id)
-        const ugoiraZip = await xf.get(ugoiraMeta.originalSrc).blob()
-        const { files } = await JSZip.loadAsync(ugoiraZip)
-        const frames = await Promise.all(Object.values(files).map(f => f.async(`blob`).then(blobToCanvas)))
-        if (SAVE_UGOIRA_AS_WEBM) {
-          const getWebm = (data, frames) =>
-            new Promise(resolve => {
-              const encoder = new Whammy.Video()
-              for (let i = 0; i < frames.length; i++) {
-                encoder.add(frames[i], data.frames[i].delay)
-              }
-              encoder.compile(false, resolve)
-            })
-          results = [[`${fname}.webm`, await getWebm(ugoiraMeta, frames)]]
-        } else {
-          const numCpu = navigator.hardwareConcurrency || 4
-          const getGif = (data, frames) =>
-            new Promise((resolve, reject) => {
-              const gif = new GIF({ workers: numCpu * 4, quality: 10 })
-              for (let i = 0; i < frames.length; i++) {
-                gif.addFrame(frames[i], { delay: data.frames[i].delay })
-              }
-              gif.on(`finished`, x => {
-                resolve(x)
+      case 2:
+        {
+          // ugoira
+          const fname = single(illustData)
+          const ugoiraMeta = await getUgoiraMeta(id)
+          const ugoiraZip = await xf.get(ugoiraMeta.originalSrc).blob()
+          const { files } = await JSZip.loadAsync(ugoiraZip)
+          const frames = await Promise.all(
+            Object.values(files).map(f => f.async(`blob`).then(blobToCanvas)),
+          )
+          if (SAVE_UGOIRA_AS_WEBM) {
+            const getWebm = (data, frames) =>
+              new Promise(resolve => {
+                const encoder = new Whammy.Video()
+                for (const [i, frame] of frames.entries()) {
+                  encoder.add(frame, data.frames[i].delay)
+                }
+                encoder.compile(false, resolve)
               })
-              gif.on(`error`, reject)
-              gif.render()
-            })
-          results = [[`${fname}.gif`, await getGif(ugoiraMeta, frames)]]
+            results = [[`${fname}.webm`, await getWebm(ugoiraMeta, frames)]]
+          } else {
+            const numCpu = navigator.hardwareConcurrency || 4
+            const getGif = (data, frames) =>
+              new Promise((resolve, reject) => {
+                const gif = new GIF({ workers: numCpu * 4, quality: 10 })
+                for (const [i, frame] of frames.entries()) {
+                  gif.addFrame(frame, { delay: data.frames[i].delay })
+                }
+                gif.on(`finished`, x => {
+                  resolve(x)
+                })
+                gif.on(`error`, reject)
+                gif.render()
+              })
+            results = [[`${fname}.gif`, await getGif(ugoiraMeta, frames)]]
+          }
         }
-      }
         break
       default:
         break
@@ -191,7 +192,7 @@
     }
   }
 
-  function getSelector () {
+  function getSelector() {
     const SELECTOR_MAP = {
       '/': ``,
       '/artworks/\\d+': `div[role=presentation]>a`,
@@ -224,7 +225,7 @@
     if (id) saveImage(FORMAT, id).catch(console.error)
   })
 
-  body.appendChild(
+  body.append(
     $el(`link`, {
       rel: `stylesheet`,
       href: `https://unpkg.com/@snackbar/core/dist/snackbar.min.css`,

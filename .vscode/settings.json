@@ -1,5 +1,23 @@
 {
   "editor.formatOnSave": true,
+  "eslint.experimental.useFlatConfig": true,
+  "eslint.options": {
+    "overrideConfigFile": "./eslint.config.mjs"
+  },
+  "eslint.validate": [
+    "vue",
+    "yaml",
+    "html",
+    "json",
+    "jsonc",
+    "json5",
+    "markdown",
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact"
+  ],
+  "cSpell.allowCompoundWords": true,
   "cSpell.words": [
     "feedly",
     "filenamify",
@@ -12,8 +30,5 @@
     "Swal",
     "ugoira",
     "xfetch"
-  ],
-  "[javascript]": {
-    "editor.formatOnSave": false
-  }
+  ]
 }

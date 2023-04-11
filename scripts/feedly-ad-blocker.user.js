@@ -8,7 +8,7 @@
 // @icon         https://avatars.githubusercontent.com/u/47700415?s=64&v=4
 // ==/UserScript==
 
-(() => {
+;(() => {
   'use strict'
 
   const SELECTOR = `#feedlyFrame`
@@ -16,7 +16,7 @@
   const $$ = s => [...document.querySelectorAll(s)]
   let counter = 0
 
-  function closest (el, s) {
+  function closest(el, s) {
     while (el) {
       if (el.matches(s)) {
         return el
@@ -34,9 +34,7 @@
           counter++
           closestEl.remove()
           console.log(
-            `[Feedly Ad Blocker]: ${counter} ${
-              counter > 1 ? `ads` : `ad`
-            } had been removed.`,
+            `[Feedly Ad Blocker]: ${counter} ${counter > 1 ? `ads` : `ad`} had been removed.`,
           )
         }
       })
