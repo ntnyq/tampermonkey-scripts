@@ -26,28 +26,80 @@
     return null
   }
 
-  const startObserver = () => {
-    new MutationObserver(() => {
-      $$(`.SponsorPrompt__sponsored`).forEach(el => {
-        const closestEl = closest(el, `div.entry.unread`)
-        if (closestEl) {
-          counter++
-          closestEl.remove()
-          console.log(
-            `[Feedly Ad Blocker]: ${counter} ${counter > 1 ? `ads` : `ad`} had been removed.`,
-          )
+  function debounce(func, wait, immediate) {
+    let timeout
+    let result
+
+    function debouncedFn(...args) {
+      const context = this
+
+      const later = function () {
+        timeout = null
+        if (!immediate) {
+          result = func.apply(context, args)
         }
-      })
-    }).observe($(SELECTOR), {
+      }
+
+      const callNow = immediate && !timeout
+
+      clearTimeout(timeout)
+      timeout = setTimeout(later, wait)
+
+      if (callNow) {
+        result = func.apply(context, args)
+      }
+
+      return result
+    }
+
+    debouncedFn.cancel = () => {
+      if (timeout) {
+        clearTimeout(timeout)
+        timeout = undefined
+      }
+    }
+
+    return debouncedFn
+  }
+
+  function blockAds() {
+    $$(`.SponsorPrompt__sponsored`).forEach(el => {
+      const closestEl = closest(el, `div.entry.unread`)
+      if (closestEl) {
+        counter++
+        closestEl.remove()
+        console.log(
+          `[Feedly Ad Blocker]: ${counter} ${counter > 1 ? `ads` : `ad`} had been removed.`,
+        )
+      }
+    })
+  }
+
+  function observeDOM(observer) {
+    observer.observe($(SELECTOR), {
       childList: true,
       subtree: true,
     })
   }
 
-  const timer = setInterval(() => {
-    if ($(SELECTOR)) {
-      clearInterval(timer)
-      startObserver()
-    }
-  }, 1e3)
+  const blockAdsDebounced = debounce(blockAds, 300)
+
+  // run every time page dom changed
+  const observer = new MutationObserver(() => {
+    requestAnimationFrame(() => {
+      blockAdsDebounced()
+    })
+  })
+
+  // run once when script loaded
+  blockAds()
+
+  // start observe when dom ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      observeDOM(observer)
+    })
+  } else {
+    observeDOM(observer)
+  }
 })()

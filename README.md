@@ -4,4 +4,4 @@
 
 ## License
 
-[MIT](./LICENSE) &copy; [@ntnyq](https://github.com/ntnyq)
+[MIT](./LICENSE) License © 2021-PRESENT [ntnyq](https://github.com/ntnyq)

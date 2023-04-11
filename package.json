@@ -12,7 +12,7 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint -c eslint.config.mjs --max-warnings 0 ."
   },
   "devDependencies": {
-    "@ntnyq/eslint-config": "^2.0.0-beta.4",
+    "@ntnyq/eslint-config": "2.0.0-beta.4",
     "@ntnyq/prettier-config": "^1.6.1",
     "eslint": "^8.38.0",
     "eslint-define-config": "^1.17.0",
